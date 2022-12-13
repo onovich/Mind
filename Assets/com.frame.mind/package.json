@@ -6,15 +6,15 @@
         "name": "onovich",
         "email": "onovich1110@gmail.com"
     },
-    "displayName": "MortiseFrame.Abacus",
-    "description": "A math library for my own use.",
+    "displayName": "MortiseFrame.Mind",
+    "description": "An ai library for my own use.",
     "documentationURL": "https://github.com/onovich/Mind",
     "hideInEditor": false,
     "category": "Math",
     "keywords": [
         "MortiseFrame",
         "behaviour tree",
-        "ai",
+        "ai"
     ],
     "unityRelease": "16f1"
 }
