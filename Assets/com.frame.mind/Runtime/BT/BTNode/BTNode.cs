@@ -26,7 +26,6 @@ namespace MortiseFrame.Mind {
 
         // - Element Node
         public BTNodeActionComponent ActionComponent;
-        public BTNodeConditionComponent ConditionComponent;
 
         public BTNode() {
             this.Children = new List<BTNode>();
@@ -114,27 +113,7 @@ namespace MortiseFrame.Mind {
                 }
             }
 
-            // Decorator Node
-
-            if (this.NodeType == BTNodeType.Delay) {
-                if (this.DelayComponent != null) {
-                    this.DelayComponent.Tick();
-                }
-            }
-
-            if (this.NodeType == BTNodeType.Repeat) {
-                if (this.LoopComponent != null) {
-                    this.LoopComponent.Tick();
-                }
-            }
-
             // Element Node
-
-            if (this.NodeType == BTNodeType.Condition) {
-                if (this.ConditionComponent != null) {
-                    this.ConditionComponent.Tick();
-                }
-            }
 
             if (this.NodeType == BTNodeType.Action) {
                 if (this.ActionComponent != null) {
@@ -153,7 +132,6 @@ namespace MortiseFrame.Mind {
             DelayComponent?.Reset();
             LoopComponent?.Reset();
             ActionComponent?.Reset();
-            ConditionComponent?.Reset();
             State = BTNodeState.End;
 
         }

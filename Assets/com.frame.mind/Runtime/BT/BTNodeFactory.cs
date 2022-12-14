@@ -114,20 +114,5 @@ namespace MortiseFrame.Mind {
 
         }
 
-        public BTNode CreatElementNode_Condition(Func<bool> predicate, Func<bool> precondition) {
-
-            var node = new BTNode();
-            node.NodeType = BTNodeType.Condition;
-            node.Precondition = precondition;
-            var conditionComponent = new BTNodeConditionComponent();
-            conditionComponent.Condition = predicate;
-            node.ConditionComponent = conditionComponent;
-            conditionComponent.Inject(node);
-            node.ID = GetNodeID();
-
-            return node;
-
-        }
-
     }
 }
