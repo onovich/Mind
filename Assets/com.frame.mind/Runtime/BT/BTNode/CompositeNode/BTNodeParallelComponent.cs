@@ -26,15 +26,30 @@ namespace MortiseFrame.Mind {
 
         public bool EvaluateOr() {
 
-            if (node.Precondition != null && !node.Precondition()) {
-                return false;
-            }
-
+            var endCount = 0;
             for (int i = 0; i < node.Children.Count; i++) {
-                var result = node.Children[i].Evaluate();
-                if (!result) {
+                var child = node.Children[i];
+                var state = child.State;
+                if (state == BTNodeState.Ready) {
+                    if (!child.CanEnter()) {
+                        continue;
+                    }
+                    child.SetBTNodeState(BTNodeState.Running);
+                } else if (state == BTNodeState.Running) {
+                    var result = child.Evaluate();
+                    if (!result) {
+                        child.SetBTNodeState(BTNodeState.End);
+                        endCount++;
+                        break;
+                    }
+                }
+
+                if (endCount > 0) {
+                    Reset();
                     return false;
                 }
+                return true;
+
             }
 
             Reset();
@@ -44,19 +59,31 @@ namespace MortiseFrame.Mind {
 
         public bool EvaluateAnd() {
 
-            if (node.Precondition != null && !node.Precondition()) {
-                return false;
-            }
-
+            var endCount = 0;
             for (int i = 0; i < node.Children.Count; i++) {
-                var result = node.Children[i].Evaluate();
-                if (result) {
-                    return true;
+                var child = node.Children[i];
+                var state = child.State;
+                if (state == BTNodeState.Ready) {
+                    if (!child.CanEnter()) {
+                        continue;
+                    }
+                    child.SetBTNodeState(BTNodeState.Running);
+                } else if (state == BTNodeState.Running) {
+                    var result = child.Evaluate();
+                    if (!result) {
+                        child.SetBTNodeState(BTNodeState.End);
+                        endCount++;
+                    }
+                } else if (state == BTNodeState.End) {
+                    endCount++;
                 }
             }
 
-            Reset();
-            return false;
+            if (endCount >= node.Children.Count) {
+                Reset();
+                return false;
+            }
+            return true;
 
         }
 

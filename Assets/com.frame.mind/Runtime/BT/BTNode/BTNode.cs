@@ -12,7 +12,10 @@ namespace MortiseFrame.Mind {
 
         // - Evaluate
         public Func<bool> Precondition;
-        public BTNodeState State;
+        BTNodeState state;
+        public BTNodeState State => state;
+        public void SetBTNodeState(BTNodeState state) => this.state = state;
+
         public bool isActive;
 
         // - Composite Node 
@@ -20,17 +23,13 @@ namespace MortiseFrame.Mind {
         public BTNodeParallelComponent ParallelComponent;
         public BTNodeSequenceComponent SequenceComponent;
 
-        // - Decorator Node
-        public BTNodeDelayComponent DelayComponent;
-        public BTNodeLoopComponent LoopComponent;
-
         // - Element Node
         public BTNodeActionComponent ActionComponent;
 
         public BTNode() {
             this.Children = new List<BTNode>();
-            this.State = BTNodeState.None;
-            this.isActive = false;
+            this.state = BTNodeState.None;
+            this.isActive = true;
         }
 
         public void Attach(BTNode node) {
@@ -48,78 +47,38 @@ namespace MortiseFrame.Mind {
             this.Children.Clear();
         }
 
+        public bool CanEnter() {
+
+            if (!isActive) {
+                return false;
+            }
+            if (Precondition != null && !Precondition()) {
+                return false;
+            }
+            return true;
+
+        }
+
         public bool Evaluate() {
 
-            // Composite Node
-
-            if (this.NodeType == BTNodeType.Sequence) {
-                if (this.SequenceComponent != null) {
-                    return this.SequenceComponent.Evaluate();
-                }
-            }
-            if (this.NodeType == BTNodeType.Fallback) {
-                if (this.FallbackComponent != null) {
-                    return this.FallbackComponent.Evaluate();
-                }
-            }
-            if (this.NodeType == BTNodeType.Parallel) {
-                if (this.ParallelComponent != null) {
-                    return this.ParallelComponent.Evaluate();
-                }
+            if (!isActive) {
+                return false;
             }
 
-            // Decorator Node
+            return FallbackComponent?.Evaluate() ?? ParallelComponent?.Evaluate() ?? SequenceComponent?.Evaluate() ?? ActionComponent?.Evaluate() ?? false;
 
-            if (this.NodeType == BTNodeType.Delay) {
-                if (this.DelayComponent != null) {
-                    return this.DelayComponent.Evaluate();
-                }
-            }
-            if (this.NodeType == BTNodeType.Repeat) {
-                if (this.LoopComponent != null) {
-                    return this.LoopComponent.Evaluate();
-                }
-            }
-
-            // Element Node
-
-            if (this.NodeType == BTNodeType.Action) {
-                if (this.ActionComponent != null) {
-                    return this.ActionComponent.Evaluate();
-                }
-            }
-            return false;
         }
 
         public void Tick() {
 
-            // Composite Node
-
-            if (this.NodeType == BTNodeType.Sequence) {
-                if (this.SequenceComponent != null) {
-                    this.SequenceComponent.Tick();
-                }
+            if (!isActive) {
+                return;
             }
 
-            if (this.NodeType == BTNodeType.Fallback) {
-                if (this.FallbackComponent != null) {
-                    this.FallbackComponent.Tick();
-                }
-            }
-
-            if (this.NodeType == BTNodeType.Parallel) {
-                if (this.ParallelComponent != null) {
-                    this.ParallelComponent.Tick();
-                }
-            }
-
-            // Element Node
-
-            if (this.NodeType == BTNodeType.Action) {
-                if (this.ActionComponent != null) {
-                    this.ActionComponent.Tick();
-                }
-            }
+            FallbackComponent?.Tick();
+            ParallelComponent?.Tick();
+            SequenceComponent?.Tick();
+            ActionComponent?.Tick();
 
         }
 
@@ -129,10 +88,8 @@ namespace MortiseFrame.Mind {
             FallbackComponent?.Reset();
             ParallelComponent?.Reset();
             SequenceComponent?.Reset();
-            DelayComponent?.Reset();
-            LoopComponent?.Reset();
             ActionComponent?.Reset();
-            State = BTNodeState.End;
+            state = BTNodeState.End;
 
         }
 
