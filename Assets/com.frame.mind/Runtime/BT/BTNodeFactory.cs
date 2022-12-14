@@ -59,41 +59,6 @@ namespace MortiseFrame.Mind {
 
         }
 
-        // - Decorator Node
-
-        public BTNode CreatDecoratorNode_Delay(float delay, float dt, Func<bool> precondition) {
-
-            var node = new BTNode();
-            node.NodeType = BTNodeType.Delay;
-            node.Precondition = precondition;
-            var delayComponent = new BTNodeDelayComponent();
-            delayComponent.DelayTime = delay;
-            delayComponent.dt = dt;
-            delayComponent.Inject(node);
-
-            node.DelayComponent = delayComponent;
-            node.ID = GetNodeID();
-
-            return node;
-
-        }
-
-        public BTNode CreatDecoratorNode_Loop(ushort repeatCount, Func<bool> precondition) {
-
-            var node = new BTNode();
-            node.NodeType = BTNodeType.Repeat;
-            node.Precondition = precondition;
-            var loopComponent = new BTNodeLoopComponent();
-            loopComponent.RepeatCount = repeatCount;
-            loopComponent.Inject(node);
-
-            node.LoopComponent = loopComponent;
-            node.ID = GetNodeID();
-
-            return node;
-
-        }
-
         // - Element Node
 
         public BTNode CreatElementNode_Action(Action OnStart, Func<bool> OnExcute, Action OnExit, Func<bool> precondition) {
