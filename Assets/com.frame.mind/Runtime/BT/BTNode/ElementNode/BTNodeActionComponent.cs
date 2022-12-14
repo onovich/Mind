@@ -6,7 +6,7 @@ namespace MortiseFrame.Mind {
     public class BTNodeActionComponent {
 
         BTNode node;
-        BTActionState actionState;
+        BTNodeState actionState;
 
         public Action OnStart;
         public Func<bool> OnExcute;
@@ -20,10 +20,7 @@ namespace MortiseFrame.Mind {
 
         public bool Evaluate() {
 
-            if (node.Precondition != null && !node.Precondition()) {
-                return false;
-            }
-            if (actionState == BTActionState.End) {
+            if (actionState == BTNodeState.End) {
                 return false;
             }
             return true;
@@ -32,16 +29,16 @@ namespace MortiseFrame.Mind {
 
         public void Tick() {
 
-            if (actionState == BTActionState.Ready) {
+            if (actionState == BTNodeState.Ready) {
                 OnStart();
-                actionState = BTActionState.Running;
+                actionState = BTNodeState.Running;
                 return;
             }
-            if (actionState == BTActionState.Running) {
+            if (actionState == BTNodeState.Running) {
                 var result = OnExcute();
                 if (result) {
                     OnExit();
-                    actionState = BTActionState.End;
+                    actionState = BTNodeState.End;
                 }
                 return;
 
@@ -50,7 +47,7 @@ namespace MortiseFrame.Mind {
         }
 
         public void Reset() {
-            actionState = BTActionState.Ready;
+            actionState = BTNodeState.Ready;
         }
 
     }

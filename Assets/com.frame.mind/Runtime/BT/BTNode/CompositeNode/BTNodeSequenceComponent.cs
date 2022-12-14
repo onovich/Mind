@@ -13,23 +13,31 @@ namespace MortiseFrame.Mind {
 
         public bool Evaluate() {
 
-            if (node.Precondition != null && !node.Precondition()) {
-                return false;
-            }
             if (activeIndex >= node.Children.Count) {
                 Reset();
                 return false;
             }
-            var result = node.Children[activeIndex].Evaluate();
-            if (!result) {
-                return false;
+
+            var child = node.Children[activeIndex];
+            if (child.CanEnter()) {
+                child.SetBTNodeState(BTNodeState.Running);
+                activeIndex++;
+                return true;
             }
-            activeIndex++;
+
+            var result = child.Evaluate();
+            if (!result) {
+                child.SetBTNodeState(BTNodeState.End);
+            }
+
             return true;
 
         }
 
         public void Tick() {
+            if (activeIndex >= node.Children.Count) {
+                return;
+            }
             node.Children[activeIndex].Tick();
         }
 
