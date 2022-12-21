@@ -1,93 +1,91 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace MortiseFrame.Mind {
 
     public class BTNodeParallelComponent : IBTNodeComponent {
 
         BTNode node;
-        BTNodeChildrenRelationship childrenRelationship;
+        bool isAnd;
 
+        public BTNodeParallelComponent(bool isAnd) {
+            this.isAnd = isAnd;
+        }
 
         public void Inject(BTNode node) {
             this.node = node;
         }
 
-        public bool Evaluate() {
-
-            if (childrenRelationship == BTNodeChildrenRelationship.And) {
-                return EvaluateAnd();
-            } else if (childrenRelationship == BTNodeChildrenRelationship.Or) {
-                return EvaluateOr();
+        public BTNodeResult Evaluate() {
+            if (isAnd) {
+                return node.Result = EvaluateAnd();
             }
-            return true;
+            return node.Result = EvaluateOr();
+        }
+
+        public BTNodeResult EvaluateOr() {
+
+            // 检测子节点
+            for (int i = 0; i < node.Children.Count; i++) {
+                Debug.Log("ParallelNode.Evaluate()+" + (i + 1) + "/" + node.Children.Count);
+
+                var child = node.Children[i];
+                var childResult = child.Evaluate();
+
+                // 1. 任一子节点返回成功，则返回成功
+                if (child.CanEnter() && childResult == BTNodeResult.True) {
+                    return BTNodeResult.True;
+                }
+
+                // 2. 所有子节点返回失败，则返回失败
+                if ((!child.CanEnter()) || (childResult == BTNodeResult.False)) {
+                    if (i + 1 >= node.Children.Count) {
+                        return BTNodeResult.True;
+                    }
+                    continue;
+                }
+
+                // 4. 其他情况，则返回运行中
+                return BTNodeResult.Continue;
+
+            }
+            throw new Exception("ParallelNode.Evaluate() Error");
 
         }
 
-        public bool EvaluateOr() {
+        public BTNodeResult EvaluateAnd() {
 
-            var endCount = 0;
+            // 检测子节点
             for (int i = 0; i < node.Children.Count; i++) {
+                Debug.Log("ParallelNode.Evaluate()+" + (i + 1) + "/" + node.Children.Count);
+
                 var child = node.Children[i];
-                var state = child.State;
-                if (state == BTNodeState.Ready) {
-                    if (!child.CanEnter()) {
-                        continue;
-                    }
-                    child.SetBTNodeState(BTNodeState.Running);
-                } else if (state == BTNodeState.Running) {
-                    var result = child.Evaluate();
-                    if (!result) {
-                        child.SetBTNodeState(BTNodeState.End);
-                        endCount++;
-                        break;
-                    }
+                var childResult = child.Evaluate();
+
+                // 1. 任一子节点返回失败，则返回失败
+                if (child.CanEnter() || childResult == BTNodeResult.True) {
+                    return node.Result = BTNodeResult.True;
                 }
 
-                if (endCount > 0) {
-                    Reset();
-                    return false;
-                }
-                return true;
-
-            }
-
-            Reset();
-            return true;
-
-        }
-
-        public bool EvaluateAnd() {
-
-            var endCount = 0;
-            for (int i = 0; i < node.Children.Count; i++) {
-                var child = node.Children[i];
-                var state = child.State;
-                if (state == BTNodeState.Ready) {
-                    if (!child.CanEnter()) {
-                        continue;
+                // 2. 所有子节点返回成功，则返回成功
+                if ((childResult == BTNodeResult.True)) {
+                    if (i + 1 >= node.Children.Count) {
+                        return node.Result = BTNodeResult.True;
                     }
-                    child.SetBTNodeState(BTNodeState.Running);
-                } else if (state == BTNodeState.Running) {
-                    var result = child.Evaluate();
-                    if (!result) {
-                        child.SetBTNodeState(BTNodeState.End);
-                        endCount++;
-                    }
-                } else if (state == BTNodeState.End) {
-                    endCount++;
+                    continue;
                 }
-            }
 
-            if (endCount >= node.Children.Count) {
-                Reset();
-                return false;
+                // 4. 其他情况，则返回运行中
+                return node.Result = BTNodeResult.Continue;
+
             }
-            return true;
+            throw new Exception("ParallelNode.Evaluate() Error");
 
         }
 
         public void Tick() {
+            //Debug.Log("ParallelNode.Tick()");
             node.Children.ForEach(child => child.Tick());
         }
 

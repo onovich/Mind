@@ -2,20 +2,17 @@ using System;
 
 namespace MortiseFrame.Mind {
 
-    public abstract class BTNodeFactory<T> {
+    public static class BTNodeFactory {
 
         static ushort NodeIDRecord;
-        public BTNodeFactory() {
-            NodeIDRecord = 0;
-        }
 
-        public ushort GetNodeID() {
+        public static ushort GetNodeID() {
             return NodeIDRecord++;
         }
 
         // - Composite Node
 
-        public BTNode CreatCompositeNode_Sequence(Func<bool> precondition) {
+        public static BTNode CreatCompositeNode_Sequence() {
 
             var node = new BTNode();
             node.NodeType = BTNodeType.Sequence;
@@ -29,11 +26,10 @@ namespace MortiseFrame.Mind {
 
         }
 
-        public BTNode CreatCompositeNode_Fallback(Func<bool> precondition) {
+        public static BTNode CreatCompositeNode_Fallback() {
 
             var node = new BTNode();
             node.NodeType = BTNodeType.Fallback;
-            node.Precondition = precondition;
             var fallbackComponent = new BTNodeFallbackComponent();
             fallbackComponent.Inject(node);
 
@@ -44,12 +40,25 @@ namespace MortiseFrame.Mind {
 
         }
 
-        public BTNode CreatCompositeNode_Parallel(Func<bool> precondition) {
+        public static BTNode CreatCompositeNode_ParallelAnd() {
 
             var node = new BTNode();
             node.NodeType = BTNodeType.Parallel;
-            node.Precondition = precondition;
-            var parallelComponent = new BTNodeParallelComponent();
+            var parallelComponent = new BTNodeParallelComponent(true);
+            parallelComponent.Inject(node);
+
+            node.ParallelComponent = parallelComponent;
+            node.ID = GetNodeID();
+
+            return node;
+
+        }
+
+        public static BTNode CreatCompositeNode_ParallelOr() {
+
+            var node = new BTNode();
+            node.NodeType = BTNodeType.Parallel;
+            var parallelComponent = new BTNodeParallelComponent(false);
             parallelComponent.Inject(node);
 
             node.ParallelComponent = parallelComponent;
@@ -61,18 +70,31 @@ namespace MortiseFrame.Mind {
 
         // - Element Node
 
-        public BTNode CreatElementNode_Action(Action OnStart, Func<bool> OnExcute, Action OnExit, Func<bool> precondition) {
+        public static BTNode CreatElementNode_Action(Func<bool> OnExcute,Func<bool> ExitCondition) {
 
             var node = new BTNode();
             node.NodeType = BTNodeType.Action;
-            node.Precondition = precondition;
             var actionComponent = new BTNodeActionComponent();
-            actionComponent.OnStart = OnStart;
             actionComponent.OnExcute = OnExcute;
-            actionComponent.OnExit = OnExit;
+            actionComponent.ExitCondition = ExitCondition;
             actionComponent.Inject(node);
 
             node.ActionComponent = actionComponent;
+            node.ID = GetNodeID();
+
+            return node;
+
+        }
+
+        public static BTNode CreatElementNode_Condition(Func<bool> Condition) {
+
+            var node = new BTNode();
+            node.NodeType = BTNodeType.Condition;
+            var conditionComponent = new BTNodeConditionComponent();
+            conditionComponent.Condition = Condition;
+            conditionComponent.Inject(node);
+
+            node.ConditionComponent = conditionComponent;
             node.ID = GetNodeID();
 
             return node;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace MortiseFrame.Mind {
 
@@ -11,12 +12,8 @@ namespace MortiseFrame.Mind {
         public List<BTNode> Children;
 
         // - Evaluate
-        public Func<bool> Precondition;
-        BTNodeState state;
-        public BTNodeState State => state;
-        public void SetBTNodeState(BTNodeState state) => this.state = state;
-
-        public bool isActive;
+        public bool IsActive;
+        public BTNodeResult Result;
 
         // - Composite Node 
         public BTNodeFallbackComponent FallbackComponent;
@@ -25,11 +22,14 @@ namespace MortiseFrame.Mind {
 
         // - Element Node
         public BTNodeActionComponent ActionComponent;
+        public BTNodeConditionComponent ConditionComponent;
 
         public BTNode() {
             this.Children = new List<BTNode>();
-            this.state = BTNodeState.None;
-            this.isActive = true;
+            this.IsActive = false;
+            //this.Decision = BTNodeDecision.DoNothing;
+            //this.Result = BTNodeResult.False;
+            //this.State = BTNodeState.Idle;
         }
 
         public void Attach(BTNode node) {
@@ -49,29 +49,42 @@ namespace MortiseFrame.Mind {
 
         public bool CanEnter() {
 
-            if (!isActive) {
+            if (!IsActive) {
                 return false;
             }
-            if (Precondition != null && !Precondition()) {
-                return false;
-            }
+
             return true;
 
         }
 
-        public bool Evaluate() {
+        public void Activate() {
+            this.IsActive = true;
+            Children?.ForEach(child => child.Activate());
+        }
 
-            if (!isActive) {
-                return false;
+        public void Deactivate() {
+            this.IsActive = false;
+            Children?.ForEach(child => child.Deactivate());
+        }
+
+        public BTNodeResult Evaluate() {
+
+            if (!IsActive) {
+                return BTNodeResult.False;
             }
 
-            return FallbackComponent?.Evaluate() ?? ParallelComponent?.Evaluate() ?? SequenceComponent?.Evaluate() ?? ActionComponent?.Evaluate() ?? false;
+            return FallbackComponent?.Evaluate() ??
+            ParallelComponent?.Evaluate() ??
+            SequenceComponent?.Evaluate() ??
+            ActionComponent?.Evaluate() ??
+            ConditionComponent?.Evaluate() ??
+            BTNodeResult.False;
 
         }
 
         public void Tick() {
 
-            if (!isActive) {
+            if (!IsActive) {
                 return;
             }
 
@@ -79,8 +92,11 @@ namespace MortiseFrame.Mind {
             ParallelComponent?.Tick();
             SequenceComponent?.Tick();
             ActionComponent?.Tick();
+            ConditionComponent?.Tick();
 
         }
+
+
 
         public void Reset() {
 
@@ -89,7 +105,7 @@ namespace MortiseFrame.Mind {
             ParallelComponent?.Reset();
             SequenceComponent?.Reset();
             ActionComponent?.Reset();
-            state = BTNodeState.End;
+            ConditionComponent?.Reset();
 
         }
 

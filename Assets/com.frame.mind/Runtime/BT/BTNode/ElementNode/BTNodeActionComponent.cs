@@ -1,53 +1,70 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace MortiseFrame.Mind {
 
     public class BTNodeActionComponent {
 
+
+        enum BTActionResult : byte {
+            Ready,
+            Running,
+            End,
+        }
+
+
         BTNode node;
-        BTNodeState actionState;
-
-        public Action OnStart;
-        public Func<bool> OnExcute;
+        public Action OnEnter;
         public Action OnExit;
+        public Func<bool> OnExcute;
+        BTActionResult actionResult;
+        public Func<bool> ExitCondition;
 
-        public BTNodeActionComponent() { }
+        public BTNodeActionComponent() {
+            actionResult = BTActionResult.Ready;
+        }
 
         public void Inject(BTNode node) {
             this.node = node;
         }
 
-        public bool Evaluate() {
+        public BTNodeResult Evaluate() {
 
-            if (actionState == BTNodeState.End) {
-                return false;
+            if (ExitCondition() && actionResult == BTActionResult.End) {
+                return node.Result = BTNodeResult.True;
             }
-            return true;
+            return node.Result = BTNodeResult.Continue;
 
         }
 
         public void Tick() {
 
-            if (actionState == BTNodeState.Ready) {
-                OnStart();
-                actionState = BTNodeState.Running;
+            if (actionResult == BTActionResult.End) {
                 return;
             }
-            if (actionState == BTNodeState.Running) {
-                var result = OnExcute();
-                if (result) {
-                    OnExit();
-                    actionState = BTNodeState.End;
+
+            if (actionResult == BTActionResult.Running) {
+                bool res = OnExcute.Invoke();
+                if (res) {
+                    actionResult = BTActionResult.End;
+                    OnExit?.Invoke();
+                    Debug.Log("OnExit");
                 }
                 return;
+            }
 
+            if (actionResult == BTActionResult.Ready) {
+                OnEnter?.Invoke();
+                Debug.Log("OnEnter");
+                actionResult = BTActionResult.Running;
+                return;
             }
 
         }
 
         public void Reset() {
-            actionState = BTNodeState.Ready;
+            actionResult = BTActionResult.Ready;
         }
 
     }

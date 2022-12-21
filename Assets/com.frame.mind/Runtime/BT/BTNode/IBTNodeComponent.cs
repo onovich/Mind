@@ -5,7 +5,7 @@ namespace MortiseFrame.Mind {
 
     public interface IBTNodeComponent {
 
-        bool Evaluate();
+        BTNodeResult Evaluate();
         void Tick();
         void Reset();
 
