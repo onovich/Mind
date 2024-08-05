@@ -12,9 +12,9 @@ namespace MortiseFrame.Mind {
 
         // - Composite Node
 
-        public static BTNode CreatCompositeNode_Sequence() {
+        public static BTNode CreatCompositeNode_Sequence(IBTPrecondition precondition = null) {
 
-            var node = new BTNode();
+            var node = new BTNode(precondition);
             node.NodeType = BTNodeType.Sequence;
             var sequenceComponent = new BTNodeSequenceComponent();
             sequenceComponent.Inject(node);
@@ -26,9 +26,9 @@ namespace MortiseFrame.Mind {
 
         }
 
-        public static BTNode CreatCompositeNode_Fallback() {
+        public static BTNode CreatCompositeNode_Fallback(IBTPrecondition precondition = null) {
 
-            var node = new BTNode();
+            var node = new BTNode(precondition);
             node.NodeType = BTNodeType.Fallback;
             var fallbackComponent = new BTNodeFallbackComponent();
             fallbackComponent.Inject(node);
@@ -40,9 +40,9 @@ namespace MortiseFrame.Mind {
 
         }
 
-        public static BTNode CreatCompositeNode_ParallelAnd() {
+        public static BTNode CreatCompositeNode_ParallelAnd(IBTPrecondition precondition = null) {
 
-            var node = new BTNode();
+            var node = new BTNode(precondition);
             node.NodeType = BTNodeType.Parallel;
             var parallelComponent = new BTNodeParallelComponent(true);
             parallelComponent.Inject(node);
@@ -54,9 +54,9 @@ namespace MortiseFrame.Mind {
 
         }
 
-        public static BTNode CreatCompositeNode_ParallelOr() {
+        public static BTNode CreatCompositeNode_ParallelOr(IBTPrecondition precondition = null) {
 
-            var node = new BTNode();
+            var node = new BTNode(precondition);
             node.NodeType = BTNodeType.Parallel;
             var parallelComponent = new BTNodeParallelComponent(false);
             parallelComponent.Inject(node);
@@ -70,13 +70,14 @@ namespace MortiseFrame.Mind {
 
         // - Element Node
 
-        public static BTNode CreatElementNode_Action(Func<bool> OnExcute,Func<bool> ExitCondition) {
+        public static BTNode CreatElementNode_Action(IBTAction Action, IBTPrecondition precondition = null) {
 
-            var node = new BTNode();
+            var node = new BTNode(precondition);
             node.NodeType = BTNodeType.Action;
             var actionComponent = new BTNodeActionComponent();
-            actionComponent.OnExcute = OnExcute;
-            actionComponent.ExitCondition = ExitCondition;
+            actionComponent.OnEnter = Action.OnEnter;
+            actionComponent.OnExcute = Action.OnExcute;
+            actionComponent.OnExit = Action.OnExit;
             actionComponent.Inject(node);
 
             node.ActionComponent = actionComponent;
@@ -86,9 +87,10 @@ namespace MortiseFrame.Mind {
 
         }
 
-        public static BTNode CreatElementNode_Condition(Func<bool> Condition) {
 
-            var node = new BTNode();
+        public static BTNode CreatElementNode_Condition(Func<bool> Condition, IBTPrecondition precondition = null) {
+
+            var node = new BTNode(precondition);
             node.NodeType = BTNodeType.Condition;
             var conditionComponent = new BTNodeConditionComponent();
             conditionComponent.Condition = Condition;
@@ -100,6 +102,7 @@ namespace MortiseFrame.Mind {
             return node;
 
         }
+
 
     }
 }

@@ -13,7 +13,6 @@ namespace MortiseFrame.Mind {
             End,
         }
 
-
         BTNode node;
         public Action OnEnter;
         public Action OnExit;
@@ -31,7 +30,7 @@ namespace MortiseFrame.Mind {
 
         public BTNodeResult Evaluate() {
 
-            if (ExitCondition() && actionResult == BTActionResult.End) {
+            if (actionResult == BTActionResult.End) {
                 return node.Result = BTNodeResult.True;
             }
             return node.Result = BTNodeResult.Continue;

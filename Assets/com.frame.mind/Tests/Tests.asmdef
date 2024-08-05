@@ -4,7 +4,7 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "MortiseFrame.AbacusFrame.Mind"
+        "MortiseFrame.Mind"
     ],
     "includePlatforms": [
         "Editor"

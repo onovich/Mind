@@ -18,7 +18,8 @@ namespace MortiseFrame.Mind {
 
         public void Tick() {
             var res = root.Evaluate();
-            Debug.Log("BTTree.Tick() " + res.ToString());
+
+            //Debug.Log("BTTree.Tick() " + res.ToString());
             if (root == null) {
                 throw new System.Exception("BTTree.Tick() Error");
             }
@@ -27,6 +28,9 @@ namespace MortiseFrame.Mind {
             }
             if (res == BTNodeResult.True || res == BTNodeResult.Continue) {
                 root.Tick();
+            }
+            if (res == BTNodeResult.False || res == BTNodeResult.True) {
+                root.Reset();
             }
         }
     }

@@ -14,6 +14,7 @@ namespace MortiseFrame.Mind {
         // - Evaluate
         public bool IsActive;
         public BTNodeResult Result;
+        IBTPrecondition precondition;
 
         // - Composite Node 
         public BTNodeFallbackComponent FallbackComponent;
@@ -24,7 +25,8 @@ namespace MortiseFrame.Mind {
         public BTNodeActionComponent ActionComponent;
         public BTNodeConditionComponent ConditionComponent;
 
-        public BTNode() {
+        public BTNode(IBTPrecondition precondition) {
+            this.precondition = precondition;
             this.Children = new List<BTNode>();
             this.IsActive = false;
             //this.Decision = BTNodeDecision.DoNothing;
@@ -53,7 +55,11 @@ namespace MortiseFrame.Mind {
                 return false;
             }
 
-            return true;
+            if (precondition == null) {
+                return true;
+            }
+
+            return precondition.CanEnter();
 
         }
 

@@ -61,3 +61,4 @@ crashlytics-build.properties
 UserSettings
 .vscode
 omnisharp.json
+ProjectSettings/SceneTemplateSettings.json

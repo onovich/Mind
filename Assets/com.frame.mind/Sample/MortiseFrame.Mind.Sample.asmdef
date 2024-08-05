@@ -1,0 +1,16 @@
+{
+    "name": "MortiseFrame.Mind.Sample",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0d139e35011944803bbd58245e7169fb"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
